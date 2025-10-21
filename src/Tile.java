@@ -1,5 +1,8 @@
+//======Importação de bibliotecas======
 import java.awt.image.BufferedImage;
+//=====================================
 
+//======Classe que representa um tile do mapa======
 public class Tile {
     //======Variáveis======
     public BufferedImage imagem; // imagem do tile
@@ -9,7 +12,7 @@ public class Tile {
 
     //======Construtor======
     public Tile(BufferedImage imagem, boolean solida, boolean saida) {
-        this.imagem = imagem; // define a imagem
+        this.imagem = imagem; // define a imagem do tile
         this.solida = solida; // define se é sólido
         this.saida = saida;   // define se é saída
     }

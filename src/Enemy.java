@@ -1,12 +1,17 @@
+//======Importação de bibliotecas======
 import java.awt.*;
 import java.util.*;
+//=====================================
 
+//======Classe que representa um inimigo======
 public class Enemy {
     //======Posição do inimigo======
     public int x, y; // coordenadas do inimigo
+    //==============================
 
     //======Estado atual======
     private EstadoInimigo estado = EstadoInimigo.VAGANDO; // estado inicial
+    //========================
 
     //======Parâmetros de visão======
     private int alcanceVisao = 12; // número máximo de tiles visíveis
@@ -44,7 +49,7 @@ public class Enemy {
         //======Executa movimento com prioridade======
         moverComPrioridade(mapa, jogador);
     }
-    //======================================================
+    //====================================================
 
     //======Verifica se jogador está visível com base em distância e paredes======
     private boolean podeVerJogador(Mapa mapa, Jogador jogador, int alcance) {

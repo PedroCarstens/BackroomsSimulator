@@ -1,40 +1,45 @@
+//======Importação de bibliotecas======
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+//=====================================
 
+//======Classe principal do painel do jogo======
 public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
     //======Variáveis======
-    Mapa mapa;
-    Jogador jogador;
+    Mapa mapa;                // referência ao mapa
+    Jogador jogador;          // referência ao jogador
     int mouseX = -1, mouseY = -1; // posição do mouse em tiles
     boolean mouseEsquerdoPressionado = false; // controle de clique contínuo
     //====================
 
     //======Construtor======
     public Jogo() throws Exception {
-        mapa = new Mapa();
-        jogador = new Jogador();
-        setFocusable(true);
-        requestFocusInWindow();
-        addKeyListener(this);
-        addMouseListener(this);
-        addMouseMotionListener(this);
+        mapa = new Mapa();         // cria novo mapa procedural
+        jogador = new Jogador();   // cria novo jogador
+        setFocusable(true);        // permite foco no painel
+        requestFocusInWindow();    // requisita foco
+        addKeyListener(this);      // adiciona listener de teclado
+        addMouseListener(this);    // adiciona listener de mouse
+        addMouseMotionListener(this); // adiciona listener de movimento do mouse
     }
     //======================
 
-    //======Renderização======
+    //======Renderização do jogo======
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        mapa.render(g);
-        jogador.render(g, mapa.tileSize);
+        mapa.render(g);                     // desenha mapa
+        jogador.render(g, mapa.tileSize);   // desenha jogador
 
         //======Destacar tile sob o mouse======
         if (mouseX >= 0 && mouseY >= 0 && mouseX < mapa.largura && mouseY < mapa.altura) {
             Tile tile = mapa.tiles[mouseX][mouseY];
             boolean ocupado = false;
 
+            // verifica ocupação por jogador
             if (jogador.x == mouseX && jogador.y == mouseY) ocupado = true;
 
+            // verifica ocupação por inimigos
             for (Enemy e : mapa.inimigos) {
                 if (e.x == mouseX && e.y == mouseY) {
                     ocupado = true;
@@ -42,6 +47,7 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
                 }
             }
 
+            // verifica ocupação por itens
             for (Item i : mapa.itens) {
                 if (i.x == mouseX && i.y == mouseY) {
                     ocupado = true;
@@ -49,8 +55,10 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
                 }
             }
 
+            // verifica se é saída
             if (tile.saida) ocupado = true;
 
+            // aplica destaque se não estiver ocupado
             if (!ocupado) {
                 if (tile.solida) {
                     g.setColor(new Color(255, 255, 255, 100)); // branco translúcido para parede
@@ -63,7 +71,7 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
     }
     //========================
 
-    //======Teclas======
+    //======Controle de teclado======
     public void keyPressed(KeyEvent e) {
         int tecla = e.getKeyCode();
 
@@ -74,48 +82,43 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
             case KeyEvent.VK_D -> jogador.mover(1, 0, mapa);  // direita
             case KeyEvent.VK_BACK_SPACE -> {
                 try {
-                    mapa = new Mapa(); // reinicia mapa
+                    mapa = new Mapa();       // reinicia mapa
                     jogador = new Jogador(); // reinicia jogador
-                    requestFocusInWindow(); // foca na janela
+                    requestFocusInWindow();  // foca na janela
                 } catch (Exception ex) {
-                    ex.printStackTrace(); // mostra erro
+                    ex.printStackTrace();
                 }
             }
         }
 
         //======Atualiza inimigos com base no movimento do jogador======
         for (Enemy inimigo : mapa.inimigos) {
-            inimigo.atualizarSeJogadorMexeu(mapa, jogador); // aplica lógica de IA
+            inimigo.atualizarSeJogadorMexeu(mapa, jogador);
         }
-        //==============================================================
 
         //======Verifica colisão com inimigos======
-        for (Enemy inimigo : mapa.inimigos)
-        {
-
+        for (Enemy inimigo : mapa.inimigos) {
             if (inimigo.x == jogador.x && inimigo.y == jogador.y) {
                 try {
-                    mapa = new Mapa(); // reinicia mapa
+                    mapa = new Mapa();       // reinicia mapa
                     jogador = new Jogador(); // reinicia jogador
-                    requestFocusInWindow(); // foca na janela
-                    return; // encerra execução atual
+                    requestFocusInWindow();  // foca na janela
+                    return;                  // encerra execução atual
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
-
         }
-        //=========================================
 
         repaint(); // redesenha tela
-
     }
     //==================
+
     public void keyReleased(KeyEvent e) {}
     public void keyTyped(KeyEvent e) {}
     //==================
 
-    //======Mouse movimento======
+    //======Movimento do mouse======
     public void mouseMoved(MouseEvent e) {
         mouseX = e.getX() / mapa.tileSize;
         mouseY = e.getY() / mapa.tileSize;
@@ -130,7 +133,7 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
     }
     //===========================
 
-    //======Mouse clique======
+    //======Clique do mouse======
     public void mousePressed(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e)) {
             mouseEsquerdoPressionado = true;
@@ -149,7 +152,7 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
     public void mouseExited(MouseEvent e) {}
     //=========================
 
-    //======Aplica edição de terreno======
+    //======Aplica edição de terreno com o mouse======
     private void aplicarEdicao(MouseEvent e) {
         int x = e.getX() / mapa.tileSize;
         int y = e.getY() / mapa.tileSize;
@@ -158,8 +161,10 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
             Tile tile = mapa.tiles[x][y];
             boolean ocupado = false;
 
+            // verifica ocupação por jogador
             if (jogador.x == x && jogador.y == y) ocupado = true;
 
+            // verifica ocupação por inimigos
             for (Enemy enemy : mapa.inimigos) {
                 if (enemy.x == x && enemy.y == y) {
                     ocupado = true;
@@ -167,6 +172,7 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
                 }
             }
 
+            // verifica ocupação por itens
             for (Item item : mapa.itens) {
                 if (item.x == x && item.y == y) {
                     ocupado = true;
@@ -174,8 +180,10 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
                 }
             }
 
+            // verifica se é saída
             if (tile.saida) ocupado = true;
 
+            // alterna entre chão e parede se não estiver ocupado
             if (!ocupado) {
                 if (tile.solida) {
                     mapa.tiles[x][y] = mapa.tileChao;
@@ -186,6 +194,5 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
             }
         }
     }
-
     //====================================
 }

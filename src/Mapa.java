@@ -1,15 +1,18 @@
+//======Importação de bibliotecas======
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.*;
 import javax.imageio.ImageIO;
+//=====================================
 
+//======Classe que representa o mapa do jogo======
 public class Mapa {
     //======Variáveis de mapa======
-    public int largura = 21; // largura do mapa (ímpar para estrutura de labirinto)
-    public int altura = 15;  // altura do mapa (ímpar para estrutura de labirinto)
-    public int tileSize = 32; // tamanho de cada tile em pixels
-    public Tile[][] tiles; // matriz de tiles que representa o mapa
+    public int largura = 21;   // largura do mapa (ímpar para estrutura de labirinto)
+    public int altura = 15;    // altura do mapa (ímpar para estrutura de labirinto)
+    public int tileSize = 32;  // tamanho de cada tile em pixels
+    public Tile[][] tiles;     // matriz de tiles que representa o mapa
     public Tile tileChao, tileParede, tileSaida; // tipos de tile disponíveis
     public int saidaX, saidaY; // coordenadas da saída
     //=============================
@@ -37,9 +40,9 @@ public class Mapa {
 
     //======Carregar imagens======
     private void carregaTiles() throws Exception {
-        tileChao = new Tile(ImageIO.read(new File("Imagens/chão.png")), false, false); // chão passável
+        tileChao = new Tile(ImageIO.read(new File("Imagens/chão.png")), false, false);   // chão passável
         tileParede = new Tile(ImageIO.read(new File("Imagens/parede.png")), true, false); // parede sólida
-        tileSaida = new Tile(ImageIO.read(new File("Imagens/Saida.png")), false, true); // saída
+        tileSaida = new Tile(ImageIO.read(new File("Imagens/Saida.png")), false, true);   // saída
         imgEnemy = ImageIO.read(new File("Imagens/enemy.png")); // sprite do inimigo
         imgItem = ImageIO.read(new File("Imagens/item.png"));   // sprite do item
     }
@@ -49,22 +52,22 @@ public class Mapa {
     private void gerarLabirinto() {
         tiles = new Tile[largura][altura]; // inicializa matriz
 
-        // Preenche tudo com parede
+        //======Preenche tudo com parede======
         for (int x = 0; x < largura; x++) {
             for (int y = 0; y < altura; y++) {
                 tiles[x][y] = tileParede;
             }
         }
 
-        // ponto inicial do jogador
+        //======Ponto inicial do jogador======
         int inicioX = 1;
         int inicioY = 1;
         tiles[inicioX][inicioY] = tileChao;
 
-        // cavar caminhos com DFS
+        //======Cavar caminhos com DFS======
         dfs(inicioX, inicioY);
 
-        // define saída no canto oposto
+        //======Define saída no canto oposto======
         saidaX = largura - 2;
         saidaY = altura - 2;
         tiles[saidaX][saidaY] = tileSaida;
@@ -87,13 +90,13 @@ public class Mapa {
             }
         }
 
-
         //======Gerar itens======
         itens.clear(); // limpa lista anterior
         while (itens.size() < quantidadeItens) {
             int x = rand.nextInt(largura);
             int y = rand.nextInt(altura);
             boolean ocupado = inimigos.stream().anyMatch(e -> e.x == x && e.y == y);
+
             if (tiles[x][y] == tileChao && !ocupado && (x != inicioX || y != inicioY)) {
                 itens.add(new Item(x, y)); // adiciona item
             }
@@ -125,28 +128,28 @@ public class Mapa {
 
     //======Renderizar mapa e entidades======
     public void render(Graphics g) {
-        // desenha tiles
+        //======Desenha tiles======
         for (int x = 0; x < largura; x++) {
             for (int y = 0; y < altura; y++) {
                 g.drawImage(tiles[x][y].imagem, x * tileSize, y * tileSize, null);
             }
         }
 
-        // desenha inimigos
+        //======Desenha inimigos======
         for (Enemy e : inimigos) {
             g.drawImage(imgEnemy, e.x * tileSize, e.y * tileSize, null);
         }
 
-        // desenha itens
+        //======Desenha itens======
         for (Item i : itens) {
             g.drawImage(imgItem, i.x * tileSize, i.y * tileSize, null);
         }
     }
+    //=======================================
 
     //======Verifica se posição está dentro dos limites======
     public boolean valido(int x, int y) {
         return x >= 0 && y >= 0 && x < largura && y < altura;
     }
-
-    //=======================================
+    //=======================================================
 }

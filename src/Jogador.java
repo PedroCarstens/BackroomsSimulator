@@ -1,21 +1,24 @@
+//======Importação de bibliotecas======
 import java.awt.*;
 import java.util.Iterator;
+//=====================================
 
+//======Classe que representa o jogador======
 public class Jogador {
     //======Posição do jogador======
-    public int x = 1, y = 1; // posição inicial
+    public int x = 1, y = 1; // posição inicial do jogador
     //==============================
 
     //======Construtor======
     public Jogador() {
-        // posição inicial já definida
+        // posição inicial já definida em (1,1)
     }
     //======================
 
     //======Movimento do jogador======
     public void mover(int dx, int dy, Mapa mapa) {
-        int nx = x + dx;
-        int ny = y + dy;
+        int nx = x + dx; // nova posição X
+        int ny = y + dy; // nova posição Y
 
         //======Verifica se destino é válido e não sólido======
         if (mapa.valido(nx, ny) && !mapa.tiles[nx][ny].solida) {
@@ -41,7 +44,7 @@ public class Jogador {
             //=======================================
         }
     }
-    //===============================
+    //=============================================
 
     //======Renderiza jogador======
     public void render(Graphics g, int tileSize) {
