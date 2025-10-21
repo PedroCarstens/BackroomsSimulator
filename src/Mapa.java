@@ -16,7 +16,7 @@ public class Mapa {
 
     //======Variáveis de controle======
     public int quantidadeInimigos = 1; // número de inimigos gerados
-    public int quantidadeItens = 3;    // número de itens gerados
+    public int quantidadeItens = 2;    // número de itens gerados
     //=================================
 
     //======Listas de entidades======
@@ -72,14 +72,21 @@ public class Mapa {
         Random rand = new Random();
 
         //======Gerar inimigos======
-        inimigos.clear(); // limpa lista anterior
+        inimigos.clear();
         while (inimigos.size() < quantidadeInimigos) {
             int x = rand.nextInt(largura);
             int y = rand.nextInt(altura);
+
+            //======Verifica se é chão e não é o jogador======
             if (tiles[x][y] == tileChao && (x != inicioX || y != inicioY)) {
-                inimigos.add(new Enemy(x, y)); // adiciona inimigo
+                //======Verifica distância mínima do jogador======
+                int distancia = Math.abs(x - inicioX) + Math.abs(y - inicioY); // distância Manhattan
+                if (distancia >= 5) { // mínimo de 5 tiles de distância
+                    inimigos.add(new Enemy(x, y));
+                }
             }
         }
+
 
         //======Gerar itens======
         itens.clear(); // limpa lista anterior
@@ -135,5 +142,11 @@ public class Mapa {
             g.drawImage(imgItem, i.x * tileSize, i.y * tileSize, null);
         }
     }
+
+    //======Verifica se posição está dentro dos limites======
+    public boolean valido(int x, int y) {
+        return x >= 0 && y >= 0 && x < largura && y < altura;
+    }
+
     //=======================================
 }
