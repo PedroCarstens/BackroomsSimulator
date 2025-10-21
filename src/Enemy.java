@@ -14,7 +14,7 @@ public class Enemy {
     //==================================
 
     //======Parâmetros de visão======
-    private int alcanceVisao = 12;
+    private int alcanceVisao = 6;
     //===============================
 
     //======Cor do inimigo======
@@ -54,6 +54,7 @@ public class Enemy {
 
     //======Verifica se jogador está visível======
     private boolean podeVerJogador(Mapa mapa, Jogador jogador, int alcance) {
+
         int dx = jogador.x - x;
         int dy = jogador.y - y;
 
@@ -83,6 +84,7 @@ public class Enemy {
 
     //======Movimento de perseguição======
     private void perseguirJogador(Mapa mapa, Jogador jogador) {
+        System.out.println("I see you");
         int dx = Integer.compare(jogador.x, x);
         int dy = Integer.compare(jogador.y, y);
         int nx = x + dx;
