@@ -20,7 +20,10 @@ public class Main {
         janela.setLocationRelativeTo(null); // centraliza na tela
         janela.setVisible(true);
 
+        //======Inicia som ambiente======
+        new Thread(new Som("Sons/ambience.wav")).start();
 
         //==================================
     }
+
 }
