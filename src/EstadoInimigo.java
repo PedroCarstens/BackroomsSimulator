@@ -1,5 +1,5 @@
-//======Estados possíveis do inimigo======
+//======Enum que define os estados do inimigo======
 public enum EstadoInimigo {
-    VAGANDO,
-    PERSEGUINDO
+    VAGANDO,       // andando aleatoriamente
+    PERSEGUINDO    // perseguindo o jogador
 }

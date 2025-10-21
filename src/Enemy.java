@@ -6,23 +6,23 @@ import java.util.*;
 //======Classe que representa um inimigo======
 public class Enemy {
     //======Posição do inimigo======
-    public int x, y; // coordenadas do inimigo
+    public int x, y;
     //==============================
 
-    //======Estado atual======
-    private EstadoInimigo estado = EstadoInimigo.VAGANDO; // estado inicial
-    //========================
+    //======Gerenciador de estados======
+    private GerenciadorEstadoInimigo estados = new GerenciadorEstadoInimigo();
+    //==================================
 
     //======Parâmetros de visão======
-    private int alcanceVisao = 12; // número máximo de tiles visíveis
+    private int alcanceVisao = 12;
     //===============================
 
     //======Cor do inimigo======
-    private Color cor = Color.GRAY; // cor padrão (cinza)
+    private Color cor = Color.GRAY;
     //==========================
 
     //======Histórico de movimento======
-    private java.util.List<Point> historico = new ArrayList<>(); // memória de posições anteriores
+    private java.util.List<Point> historico = new ArrayList<>();
     //==================================
 
     //======Construtor======
@@ -32,104 +32,84 @@ public class Enemy {
     }
     //======================
 
-    //======Atualiza comportamento do inimigo se o jogador se mover======
+    //======Atualiza comportamento do inimigo======
     public void atualizarSeJogadorMexeu(Mapa mapa, Jogador jogador) {
         //======Verifica se jogador está visível======
         if (podeVerJogador(mapa, jogador, alcanceVisao)) {
-            estado = EstadoInimigo.PERSEGUINDO;
-            cor = Color.RED; // muda cor para vermelho
+            estados.setEstado(EstadoInimigo.PERSEGUINDO);
+            cor = Color.RED;
         } else {
-            estado = EstadoInimigo.VAGANDO;
-            cor = Color.GRAY; // volta para cinza
+            estados.setEstado(EstadoInimigo.VAGANDO);
+            cor = Color.GRAY;
         }
 
-        //======Debug: imprime estado atual do inimigo======
-        System.out.println("Inimigo em (" + x + "," + y + ") está no estado: " + estado);
-
-        //======Executa movimento com prioridade======
-        moverComPrioridade(mapa, jogador);
+        //======Executa ação com base no estado======
+        if (estados.estaEm(EstadoInimigo.PERSEGUINDO)) {
+            perseguirJogador(mapa, jogador);
+        } else if (estados.estaEm(EstadoInimigo.VAGANDO)) {
+            vagarAleatoriamente(mapa);
+        }
     }
     //====================================================
 
-    //======Verifica se jogador está visível com base em distância e paredes======
+    //======Verifica se jogador está visível======
     private boolean podeVerJogador(Mapa mapa, Jogador jogador, int alcance) {
         int dx = jogador.x - x;
         int dy = jogador.y - y;
 
-        //======Verifica distância Manhattan======
         if (Math.abs(dx) + Math.abs(dy) > alcance) return false;
 
-        //======Verifica linha reta horizontal======
         if (x == jogador.x) {
             int minY = Math.min(y, jogador.y);
             int maxY = Math.max(y, jogador.y);
             for (int i = minY + 1; i < maxY; i++) {
-                if (mapa.tiles[x][i].solida) return false; // parede bloqueia visão
+                if (mapa.tiles[x][i].solida) return false;
             }
             return true;
         }
 
-        //======Verifica linha reta vertical======
         if (y == jogador.y) {
             int minX = Math.min(x, jogador.x);
             int maxX = Math.max(x, jogador.x);
             for (int i = minX + 1; i < maxX; i++) {
-                if (mapa.tiles[i][y].solida) return false; // parede bloqueia visão
+                if (mapa.tiles[i][y].solida) return false;
             }
             return true;
         }
 
-        return false; // não está em linha reta
+        return false;
     }
-    //===================================================================
+    //====================================================
 
-    //======Movimento com prioridade======
-    private void moverComPrioridade(Mapa mapa, Jogador jogador) {
-        //======1. Perseguir jogador======
-        if (estado == EstadoInimigo.PERSEGUINDO) {
-            int dx = Integer.compare(jogador.x, x);
-            int dy = Integer.compare(jogador.y, y);
-            int nx = x + dx;
-            int ny = y + dy;
+    //======Movimento de perseguição======
+    private void perseguirJogador(Mapa mapa, Jogador jogador) {
+        int dx = Integer.compare(jogador.x, x);
+        int dy = Integer.compare(jogador.y, y);
+        int nx = x + dx;
+        int ny = y + dy;
 
-            if (mapa.valido(nx, ny) && !mapa.tiles[nx][ny].solida) {
-                x = nx;
-                y = ny;
-                historico.add(new Point(x, y));
-                if (historico.size() > 10) historico.remove(0);
-                return;
-            }
+        if (mapa.valido(nx, ny) && !mapa.tiles[nx][ny].solida) {
+            x = nx;
+            y = ny;
+            historico.add(new Point(x, y));
+            if (historico.size() > 10) historico.remove(0);
         }
+    }
+    //====================================
 
-        //======2. Evitar repetir direções recentes======
+    //======Movimento aleatório======
+    private void vagarAleatoriamente(Mapa mapa) {
         java.util.List<Point> direcoes = Arrays.asList(
-                new Point(0, -1), // cima
-                new Point(1, 0),  // direita
-                new Point(0, 1),  // baixo
-                new Point(-1, 0)  // esquerda
+                new Point(0, -1),
+                new Point(1, 0),
+                new Point(0, 1),
+                new Point(-1, 0)
         );
+        Collections.shuffle(direcoes);
 
         for (Point dir : direcoes) {
             int nx = x + dir.x;
             int ny = y + dir.y;
-            Point destino = new Point(nx, ny);
-
-            if (mapa.valido(nx, ny) && !mapa.tiles[nx][ny].solida && !historico.contains(destino)) {
-                x = nx;
-                y = ny;
-                historico.add(destino);
-                if (historico.size() > 10) historico.remove(0);
-                return;
-            }
-        }
-
-        //======3. Movimento aleatório válido======
-        Collections.shuffle(direcoes); // embaralha direções
-
-        for (Point dir : direcoes) {
-            int nx = x + dir.x;
-            int ny = y + dir.y;
-
             if (mapa.valido(nx, ny) && !mapa.tiles[nx][ny].solida) {
                 x = nx;
                 y = ny;
@@ -141,10 +121,10 @@ public class Enemy {
     }
     //====================================
 
-    //======Renderiza inimigo com cor baseada no estado======
+    //======Renderiza inimigo======
     public void render(Graphics g, int tileSize) {
-        g.setColor(cor); // define cor atual
-        g.fillRect(x * tileSize, y * tileSize, tileSize, tileSize); // desenha inimigo
+        g.setColor(cor);
+        g.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
     }
-    //=======================================================
+    //=============================
 }
