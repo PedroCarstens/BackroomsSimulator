@@ -89,7 +89,26 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
         }
         //==============================================================
 
+        //======Verifica colisão com inimigos======
+        for (Enemy inimigo : mapa.inimigos)
+        {
+
+            if (inimigo.x == jogador.x && inimigo.y == jogador.y) {
+                try {
+                    mapa = new Mapa(); // reinicia mapa
+                    jogador = new Jogador(); // reinicia jogador
+                    requestFocusInWindow(); // foca na janela
+                    return; // encerra execução atual
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+        }
+        //=========================================
+
         repaint(); // redesenha tela
+
     }
     //==================
     public void keyReleased(KeyEvent e) {}
@@ -167,5 +186,6 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
             }
         }
     }
+
     //====================================
 }

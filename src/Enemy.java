@@ -9,7 +9,7 @@ public class Enemy {
     private EstadoInimigo estado = EstadoInimigo.VAGANDO; // estado inicial
 
     //======Parâmetros de visão======
-    private int alcanceVisao = 6; // número máximo de tiles visíveis
+    private int alcanceVisao = 12; // número máximo de tiles visíveis
     //===============================
 
     //======Cor do inimigo======

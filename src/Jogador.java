@@ -1,46 +1,52 @@
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import javax.imageio.ImageIO;
+import java.util.Iterator;
 
 public class Jogador {
-    //======Variáveis======
-    public int x = 1; // posição X inicial
-    public int y = 1; // posição Y inicial
-    public BufferedImage imagem; // sprite do jogador
-    //====================
+    //======Posição do jogador======
+    public int x = 1, y = 1; // posição inicial
+    //==============================
 
     //======Construtor======
-    public Jogador() throws Exception {
-        imagem = ImageIO.read(new File("Imagens/jogador.png")); // carrega sprite
+    public Jogador() {
+        // posição inicial já definida
     }
     //======================
 
-    //======Movimentação======
+    //======Movimento do jogador======
     public void mover(int dx, int dy, Mapa mapa) {
-        int novoX = x + dx;
-        int novoY = y + dy;
+        int nx = x + dx;
+        int ny = y + dy;
 
-        // verifica limites
-        if (novoX < 0 || novoY < 0 || novoX >= mapa.largura || novoY >= mapa.altura) return;
+        //======Verifica se destino é válido e não sólido======
+        if (mapa.valido(nx, ny) && !mapa.tiles[nx][ny].solida) {
+            x = nx;
+            y = ny;
 
-        Tile destino = mapa.tiles[novoX][novoY];
+            //======Verifica se há item na nova posição======
+            Iterator<Item> iterador = mapa.itens.iterator();
+            while (iterador.hasNext()) {
+                Item item = iterador.next();
+                if (item.x == x && item.y == y) {
+                    iterador.remove(); // remove item coletado
+                    break;
+                }
+            }
+            //==============================================
 
-        if (destino.solida) return; // bloqueia se for parede
-
-        x = novoX;
-        y = novoY;
-
-        if (destino.saida) {
-            System.out.println("Saída alcançada. Encerrando...");
-            System.exit(0); // encerra programa
+            //======Verifica se chegou na saída======
+            if (mapa.saidaX == x && mapa.saidaY == y) {
+                System.out.println("Você escapou das Backrooms!");
+                System.exit(0); // encerra o programa
+            }
+            //=======================================
         }
     }
-    //=========================
+    //===============================
 
-    //======Renderizar jogador======
+    //======Renderiza jogador======
     public void render(Graphics g, int tileSize) {
-        g.drawImage(imagem, x * tileSize, y * tileSize, null); // desenha jogador
+        g.setColor(Color.BLUE); // cor do jogador
+        g.fillRect(x * tileSize, y * tileSize, tileSize, tileSize); // desenha jogador
     }
-    //==============================
+    //============================
 }
