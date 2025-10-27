@@ -19,7 +19,7 @@ public class Mapa {
 
     //======Variáveis de controle======
     public int quantidadeInimigos = 1; // número de inimigos gerados
-    public int quantidadeItens = 2;    // número de itens gerados
+    public int quantidadeItens = 5;    // número de itens gerados
     //=================================
 
     //======Listas de entidades======

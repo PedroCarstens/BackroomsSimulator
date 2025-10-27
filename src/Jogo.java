@@ -93,6 +93,16 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
                     repaint();
                 }
             }
+            //======Verifica item======
+            for (int i = 0; i < mapa.itens.size(); i++) {
+                Item item = mapa.itens.get(i);
+                if (item.x == jogador.x && item.y == jogador.y) {
+                    mapa.itens.remove(i); // remove o item da lista
+                    System.out.println("Item coletado!");
+                    break; // encerra o loop após remover
+                }
+            }
+            //============================
 
             //======Verifica colisão com inimigos======
             for (Enemy inimigo : mapa.inimigos) {
