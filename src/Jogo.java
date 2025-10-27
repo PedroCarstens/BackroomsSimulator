@@ -94,11 +94,6 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
                 }
             }
 
-            //======Atualiza inimigos======
-            for (Enemy inimigo : mapa.inimigos) {
-                inimigo.atualizarSeJogadorMexeu(mapa, jogador);
-            }
-
             //======Verifica colisão com inimigos======
             for (Enemy inimigo : mapa.inimigos) {
                 if (inimigo.x == jogador.x && inimigo.y == jogador.y) {
