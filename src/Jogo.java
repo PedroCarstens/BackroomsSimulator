@@ -115,7 +115,7 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
 
             //======Verifica se jogador chegou na saída======
             if (mapa.saidaX == jogador.x && mapa.saidaY == jogador.y) {
-                estados.setEstado(EstadoJogo.MENU); // volta ao menu
+                System.exit(0); // volta ao menu
                 return;
             }
 
