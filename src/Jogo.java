@@ -93,6 +93,7 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
                     repaint();
                 }
             }
+
             //======Verifica item======
             for (int i = 0; i < mapa.itens.size(); i++) {
                 Item item = mapa.itens.get(i);

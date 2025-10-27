@@ -15,7 +15,7 @@ public class Jogador {
 
     //======Sprite do jogador======
     private BufferedImage imagem; // imagem do jogador
-    private int angulo = 180;     // ângulo de rotação (180 = virado para baixo)
+    private int angulo = 0;       // ângulo de rotação (0 = virado para baixo)
     //=============================
 
     //======Construtor======
@@ -25,7 +25,14 @@ public class Jogador {
     //=======================
 
     //======Movimento do jogador======
-    public void mover(int dx, int dy, Mapa mapa) {
+    public boolean mover(int dx, int dy, Mapa mapa) {
+        //======Atualiza direção do sprite======
+        if (dx == -1) angulo = 90;      // esquerda (A)
+        else if (dx == 1) angulo = 270; // direita (D)
+        else if (dy == 1) angulo = 0;   // baixo (S)
+        else if (dy == -1) angulo = 180; // cima (W)
+        //======================================
+
         int novoX = x + dx;
         int novoY = y + dy;
 
@@ -33,14 +40,10 @@ public class Jogador {
         if (mapa.valido(novoX, novoY) && !mapa.tiles[novoX][novoY].solida) {
             x = novoX;
             y = novoY;
-
-            //======Atualiza direção do sprite======
-            if (dx == -1) angulo = 90;      // esquerda (A)
-            else if (dx == 1) angulo = 270; // direita (D)
-            else if (dy == 1) angulo = 0;   // baixo (S)
-            else if (dy == -1) angulo = 180; // cima (W)
-            //======================================
+            return true; // movimento bem-sucedido
         }
+
+        return false; // movimento bloqueado (parede)
     }
     //================================
 
