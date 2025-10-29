@@ -27,8 +27,19 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
         addKeyListener(this);      // adiciona listener de teclado
         addMouseListener(this);    // adiciona listener de mouse
         addMouseMotionListener(this); // adiciona listener de movimento do mouse
+
+        //======Timer para atualizar inimigos a cada 1 segundo======
+        new javax.swing.Timer(1000, e -> {
+            if (estados.estaEm(EstadoJogo.JOGANDO)) {
+                for (Enemy inimigo : mapa.inimigos) {
+                    inimigo.atualizar(mapa, jogador); // atualiza comportamento
+                }
+                repaint(); // redesenha o jogo
+            }
+        }).start();
+        //==========================================================
     }
-    //======================
+
 
     //======Getters para Main acessar======
     public int getLarguraMapa() {
@@ -103,7 +114,7 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
                     break; // encerra o loop após remover
                 }
             }
-            //============================
+            //=============================
 
             //======Verifica colisão com inimigos======
             for (Enemy inimigo : mapa.inimigos) {

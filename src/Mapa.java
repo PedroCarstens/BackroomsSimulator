@@ -85,7 +85,11 @@ public class Mapa {
                 //======Verifica distância mínima do jogador======
                 int distancia = Math.abs(x - inicioX) + Math.abs(y - inicioY); // distância Manhattan
                 if (distancia >= 5) { // mínimo de 5 tiles de distância
-                    inimigos.add(new Enemy(x, y));
+                    try {
+                        inimigos.add(new Enemy(x, y)); // cria inimigo com sprite
+                    } catch (Exception e) {
+                        e.printStackTrace(); // debug de erro de imagem
+                    }
                 }
             }
         }
