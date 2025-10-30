@@ -1,4 +1,7 @@
 //======Importação de bibliotecas======
+//Steering Behaviors
+// e para bugs com listas  java.util.List
+//=====================================
 import javax.swing.*;
 //=====================================
 
