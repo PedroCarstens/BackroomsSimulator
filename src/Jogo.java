@@ -28,16 +28,16 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
         addMouseListener(this);    // adiciona listener de mouse
         addMouseMotionListener(this); // adiciona listener de movimento do mouse
 
-        //======Timer para atualizar inimigos a cada 1 segundo======
-        new javax.swing.Timer(1000, e -> {
+        //======Timer para atualizar inimigos com movimentação vetorial======
+        new javax.swing.Timer(33, e -> {
             if (estados.estaEm(EstadoJogo.JOGANDO)) {
                 for (Enemy inimigo : mapa.inimigos) {
-                    inimigo.atualizar(mapa, jogador); // atualiza comportamento
+                    inimigo.atualizar(mapa, jogador); // atualiza comportamento do inimigo
                 }
-                repaint(); // redesenha o jogo
+                repaint(); // redesenha o jogo com as novas posições
             }
         }).start();
-        //==========================================================
+//====================================================================
     }
 
 
@@ -115,14 +115,23 @@ public class Jogo extends JPanel implements KeyListener, MouseListener, MouseMot
                 }
             }
             //=============================
-
             //======Verifica colisão com inimigos======
             for (Enemy inimigo : mapa.inimigos) {
-                if (inimigo.x == jogador.x && inimigo.y == jogador.y) {
-                    estados.setEstado(EstadoJogo.MENU); // volta ao menu
-                    return;
+                //======Arredonda posição vetorial do inimigo para comparar com jogador======
+                int inimigoTileX = (int)Math.round(inimigo.x); // converte posição real para tile
+                int inimigoTileY = (int)Math.round(inimigo.y); // idem
+
+                //======Compara com posição do jogador (em tiles)======
+                if (inimigoTileX == jogador.x && inimigoTileY == jogador.y) {
+                    System.out.println("Jogador colidiu com inimigo! Encerrando jogo..."); // debug
+
+                    //======Encerra o jogo com segurança usando SwingUtilities======
+                    javax.swing.SwingUtilities.invokeLater(() -> System.exit(0));
+                    return; // encerra verificação
                 }
             }
+//========================================================
+
 
             //======Verifica se jogador chegou na saída======
             if (mapa.saidaX == jogador.x && mapa.saidaY == jogador.y) {

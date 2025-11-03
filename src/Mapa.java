@@ -19,7 +19,7 @@ public class Mapa {
 
     //======Variáveis de controle======
     public int quantidadeInimigos = 1; // número de inimigos gerados
-    public int quantidadeItens = 5;    // número de itens gerados
+    public int quantidadeItens = 2;    // número de itens gerados
     //=================================
 
     //======Listas de entidades======
@@ -141,7 +141,7 @@ public class Mapa {
 
         //======Desenha inimigos======
         for (Enemy e : inimigos) {
-            g.drawImage(imgEnemy, e.x * tileSize, e.y * tileSize, null);
+            g.drawImage(imgEnemy, (int)(e.x * tileSize), (int)(e.y * tileSize), null);
         }
 
         //======Desenha itens======
