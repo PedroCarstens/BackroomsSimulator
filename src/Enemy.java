@@ -80,8 +80,18 @@ public class Enemy {
         //======5. Se há caminho, segue para o próximo tile======
         if (!caminhoDFS.isEmpty()) {
             int[] destino = caminhoDFS.peek(); // olha o topo da pilha
-            double dx = destino[0] - x;
-            double dy = destino[1] - y;
+            double destinoX = destino[0];
+            double destinoY = destino[1];
+
+            //======Verifica se já chegou com margem de tolerância======
+            if (Math.abs(x - destinoX) < 0.05 && Math.abs(y - destinoY) < 0.05) {
+                caminhoDFS.pop(); // chegou ao destino
+                return;
+            }
+
+            //======Calcula vetor direção até destino======
+            double dx = destinoX - x;
+            double dy = destinoY - y;
             double distancia = Math.sqrt(dx * dx + dy * dy);
 
             if (distancia > 0.01) {
@@ -92,8 +102,6 @@ public class Enemy {
                 y += dirY * velocidade;
 
                 System.out.printf("Inimigo [%.2f, %.2f] explora para [%d, %d]%n", x, y, destino[0], destino[1]);
-            } else {
-                caminhoDFS.pop(); // chegou ao destino, remove da pilha
             }
         }
     }
@@ -133,8 +141,7 @@ public class Enemy {
         Collections.shuffle(vizinhos); // embaralha para simular DFS
         return vizinhos;
     }
-//===================================================================
-
+    //===================================================================
 
     //======Verifica se jogador está visível (linha reta sem parede)======
     private boolean podeVerJogador(Mapa mapa, Jogador jogador) {
