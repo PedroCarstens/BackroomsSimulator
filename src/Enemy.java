@@ -11,47 +11,42 @@ import java.util.Collections;
 //=====================================
 
 //======Classe que representa um inimigo======
-
 public class Enemy {
     //======Posição do inimigo (vetorial)======
-    public double x, y; // coordenadas reais no mapa
-    private int tileX, tileY; // posição atual em tiles
-    private BufferedImage imagem; // sprite do inimigo
-    private double velocidade = 0.08; // velocidade de movimento atual
-    private final double velocidadeNormal = 0.08; // velocidade padrão
-    private final double velocidadePerseguir = 0.2; // velocidade ao perseguir jogador
-    private String modo = "vagar"; // modo atual ("vagar" ou "perseguir")
-    private Stack<int[]> caminhoDFS = new Stack<>(); // trilha de exploração
-    private Set<String> visitados = new HashSet<>(); // memória de tiles já visitados
+    public double x, y;
+    private int tileX, tileY;
+    private BufferedImage imagem;
+    private double velocidade = 0.08;
+    private final double velocidadeNormal = 0.08;
+    private final double velocidadePerseguir = 0.2;
+    private String modo = "vagar";
+    private Stack<int[]> caminhoDFS = new Stack<>();
+    private Set<String> visitados = new HashSet<>();
     //=========================================
 
     //======Construtor======
     public Enemy(int x, int y) throws Exception {
         this.x = x;
         this.y = y;
-        imagem = ImageIO.read(new File("Imagens/enemy.png")); // carrega sprite
+        imagem = ImageIO.read(new File("Imagens/enemy.png"));
     }
     //======================
 
     //======Atualiza comportamento do inimigo======
     public void atualizar(Mapa mapa, Jogador jogador) {
-        //======1. Atualiza posição em tiles======
         tileX = (int)Math.round(x);
         tileY = (int)Math.round(y);
         String posAtual = tileX + "," + tileY;
-        visitados.add(posAtual); // marca como visitado
-        //========================================
+        visitados.add(posAtual);
 
-        //======2. Verifica se vê o jogador======
         if (podeVerJogador(mapa, jogador)) {
             if (!modo.equals("perseguir")) {
                 modo = "perseguir";
                 System.out.println("Modo alterado para PERSEGUIR");
             }
 
-            velocidade = velocidadePerseguir; // aumenta velocidade ao perseguir
+            velocidade = velocidadePerseguir;
 
-            //======2.1 Calcula vetor direção até jogador======
             double dx = jogador.x - x;
             double dy = jogador.y - y;
             double distancia = Math.sqrt(dx * dx + dy * dy);
@@ -67,36 +62,38 @@ public class Enemy {
             }
             return;
         } else {
-            velocidade = velocidadeNormal; // volta à velocidade padrão
+            velocidade = velocidadeNormal;
         }
-        //==========================================
 
-        //======3. Modo padrão: exploração DFS======
         if (!modo.equals("vagar")) {
             modo = "vagar";
             System.out.println("Modo alterado para VAGAR");
         }
 
-        //======4. Se não há caminho, gera vizinhos======
         if (caminhoDFS.isEmpty()) {
             java.util.List<int[]> vizinhos = getVizinhosDFS(mapa);
+            boolean encontrouNovo = false;
+
             for (int[] v : vizinhos) {
                 String chave = v[0] + "," + v[1];
                 if (!visitados.contains(chave)) {
-                    caminhoDFS.push(v); // empilha vizinho não visitado
+                    caminhoDFS.push(v);
+                    encontrouNovo = true;
                 }
+            }
+
+            if (!encontrouNovo) {
+                visitados.clear();
+                System.out.println("Inimigo reiniciou exploração");
             }
         }
 
-        //======5. Se há caminho, segue para o próximo tile======
         if (!caminhoDFS.isEmpty()) {
-            int[] destino = caminhoDFS.peek(); // olha o topo da pilha
+            int[] destino = caminhoDFS.peek();
             double destinoX = destino[0];
             double destinoY = destino[1];
 
-            //======Verifica se há item ou saída visível na direção atual======
             if (verificaItemOuSaida(mapa, destinoX, destinoY)) {
-                //======Inverte direção para evitar item ou saída======
                 double dx = x - destinoX;
                 double dy = y - destinoY;
                 double distancia = Math.sqrt(dx * dx + dy * dy);
@@ -113,13 +110,11 @@ public class Enemy {
                 return;
             }
 
-            //======Verifica se já chegou com margem de tolerância======
             if (Math.abs(x - destinoX) < 0.05 && Math.abs(y - destinoY) < 0.05) {
-                caminhoDFS.pop(); // chegou ao destino
+                caminhoDFS.pop();
                 return;
             }
 
-            //======Calcula vetor direção até destino======
             double dx = destinoX - x;
             double dy = destinoY - y;
             double distancia = Math.sqrt(dx * dx + dy * dy);
@@ -144,12 +139,12 @@ public class Enemy {
 
         for (Item item : mapa.itens) {
             if (item.x == dx && item.y == dy) {
-                return true; // encontrou item
+                return true;
             }
         }
 
         if (mapa.saidaX == dx && mapa.saidaY == dy) {
-            return true; // encontrou saída
+            return true;
         }
 
         return false;
@@ -159,17 +154,15 @@ public class Enemy {
     //======Obtém vizinhos válidos estilo DFS (evita itens e saída)======
     private java.util.List<int[]> getVizinhosDFS(Mapa mapa) {
         java.util.List<int[]> vizinhos = new ArrayList<>();
-        int[][] direcoes = {{0,-1},{0,1},{-1,0},{1,0}}; // cima, baixo, esquerda, direita
+        int[][] direcoes = {{0,-1},{0,1},{-1,0},{1,0}};
 
         for (int[] d : direcoes) {
             int nx = tileX + d[0];
             int ny = tileY + d[1];
 
-            //======Verifica se posição é válida e não é parede======
             if (mapa.valido(nx, ny) && !mapa.tiles[nx][ny].solida) {
                 boolean temItem = false;
 
-                //======Verifica se há item na posição======
                 for (Item item : mapa.itens) {
                     if (item.x == nx && item.y == ny) {
                         temItem = true;
@@ -177,17 +170,23 @@ public class Enemy {
                     }
                 }
 
-                //======Verifica se é a saída======
                 boolean ehSaida = (mapa.saidaX == nx && mapa.saidaY == ny);
 
-                //======Se não tem item nem é saída, adiciona como vizinho válido======
                 if (!temItem && !ehSaida) {
                     vizinhos.add(new int[]{nx, ny});
                 }
             }
         }
 
-        Collections.shuffle(vizinhos); // embaralha para simular DFS
+        Collections.shuffle(vizinhos);
+        vizinhos.sort((a, b) -> {
+            String chaveA = a[0] + "," + a[1];
+            String chaveB = b[0] + "," + b[1];
+            boolean visitadoA = visitados.contains(chaveA);
+            boolean visitadoB = visitados.contains(chaveB);
+            return Boolean.compare(visitadoA, visitadoB);
+        });
+
         return vizinhos;
     }
     //===================================================================
@@ -216,11 +215,24 @@ public class Enemy {
     }
     //===========================================
 
+    //======Gera direção diagonal aleatória======
+    private int[] direcaoAleatoria() {
+        int r = (int)(Math.random() * 3); // cast para inteiro entre 0 e 2
+
+        return switch (r) {
+            case 0 -> new int[]{1, 1};
+            case 1 -> new int[]{1, -1};
+            case 2 -> new int[]{-1, 1};
+            default -> new int[]{-1, -1};
+        };
+    }
+    //===========================================
+
     //======Renderização do inimigo======
     public void render(Graphics g, int tileSize) {
         int px = (int)(x * tileSize);
         int py = (int)(y * tileSize);
-        g.drawImage(imagem, px, py, tileSize, tileSize, null); // desenha imagem sem rotação
+        g.drawImage(imagem, px, py, tileSize, tileSize, null);
     }
     //===========================================
 }

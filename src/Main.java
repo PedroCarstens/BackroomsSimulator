@@ -4,7 +4,6 @@
 //=====================================
 import javax.swing.*;
 //=====================================
-
 //======Classe principal que inicia o jogo======
 public class Main {
     //======Método principal======
