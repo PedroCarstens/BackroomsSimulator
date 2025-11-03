@@ -1,18 +1,25 @@
 //======Importação de bibliotecas======
-import java.awt.*;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import javax.imageio.ImageIO;
-import java.util.*;
+import java.util.Stack;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
 //=====================================
 
 //======Classe que representa um inimigo======
+
 public class Enemy {
     //======Posição do inimigo (vetorial)======
     public double x, y; // coordenadas reais no mapa
     private int tileX, tileY; // posição atual em tiles
     private BufferedImage imagem; // sprite do inimigo
-    private double velocidade = 0.2; // velocidade de movimento
+    private double velocidade = 0.08; // velocidade de movimento atual
+    private final double velocidadeNormal = 0.08; // velocidade padrão
+    private final double velocidadePerseguir = 0.2; // velocidade ao perseguir jogador
     private String modo = "vagar"; // modo atual ("vagar" ou "perseguir")
     private Stack<int[]> caminhoDFS = new Stack<>(); // trilha de exploração
     private Set<String> visitados = new HashSet<>(); // memória de tiles já visitados
@@ -42,6 +49,8 @@ public class Enemy {
                 System.out.println("Modo alterado para PERSEGUIR");
             }
 
+            velocidade = velocidadePerseguir; // aumenta velocidade ao perseguir
+
             //======2.1 Calcula vetor direção até jogador======
             double dx = jogador.x - x;
             double dy = jogador.y - y;
@@ -57,6 +66,8 @@ public class Enemy {
                 System.out.printf("Inimigo [%.2f, %.2f] persegue jogador [%d, %d]%n", x, y, jogador.x, jogador.y);
             }
             return;
+        } else {
+            velocidade = velocidadeNormal; // volta à velocidade padrão
         }
         //==========================================
 
@@ -83,6 +94,25 @@ public class Enemy {
             double destinoX = destino[0];
             double destinoY = destino[1];
 
+            //======Verifica se há item ou saída visível na direção atual======
+            if (verificaItemOuSaida(mapa, destinoX, destinoY)) {
+                //======Inverte direção para evitar item ou saída======
+                double dx = x - destinoX;
+                double dy = y - destinoY;
+                double distancia = Math.sqrt(dx * dx + dy * dy);
+
+                if (distancia > 0.01) {
+                    double dirX = dx / distancia;
+                    double dirY = dy / distancia;
+
+                    x += dirX * velocidade;
+                    y += dirY * velocidade;
+
+                    System.out.printf("Inimigo [%.2f, %.2f] evita item/saída%n", x, y);
+                }
+                return;
+            }
+
             //======Verifica se já chegou com margem de tolerância======
             if (Math.abs(x - destinoX) < 0.05 && Math.abs(y - destinoY) < 0.05) {
                 caminhoDFS.pop(); // chegou ao destino
@@ -106,6 +136,25 @@ public class Enemy {
         }
     }
     //============================================
+
+    //======Verifica se há item ou saída na posição destino======
+    private boolean verificaItemOuSaida(Mapa mapa, double destinoX, double destinoY) {
+        int dx = (int)Math.round(destinoX);
+        int dy = (int)Math.round(destinoY);
+
+        for (Item item : mapa.itens) {
+            if (item.x == dx && item.y == dy) {
+                return true; // encontrou item
+            }
+        }
+
+        if (mapa.saidaX == dx && mapa.saidaY == dy) {
+            return true; // encontrou saída
+        }
+
+        return false;
+    }
+    //===========================================================
 
     //======Obtém vizinhos válidos estilo DFS (evita itens e saída)======
     private java.util.List<int[]> getVizinhosDFS(Mapa mapa) {
